@@ -1,0 +1,7 @@
+{
+  "name": "Lunatone Music",
+  "description": "A premium high-performance music streaming application with deep dark themes, glassmorphism, and regional language focus.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
