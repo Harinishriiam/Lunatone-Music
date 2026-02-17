@@ -29,7 +29,7 @@ export enum Category {
   Trending = 'Trending'
 }
 
-export type ViewType = 'home' | 'browse' | 'library' | 'liked' | 'playlists' | 'language-hub' | 'search';
+export type ViewType = 'home' | 'browse' | 'library' | 'liked' | 'playlists' | 'language-hub' | 'search' | 'album-detail';
 
 export interface User {
   name: string;

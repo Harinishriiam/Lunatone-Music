@@ -180,7 +180,7 @@ const PaymentModal: React.FC<{ isOpen: boolean, onClose: () => void, onComplete:
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 backdrop-blur-xl p-6">
-      <div className="glass border border-white/10 w-full max-md p-10 rounded-[3rem] relative animate-in fade-in zoom-in duration-300">
+      <div className="glass border border-white/10 w-full max-w-md p-10 rounded-[3rem] relative animate-in fade-in zoom-in duration-300">
         {!isSuccess ? (
           <>
             <button onClick={onClose} className="absolute top-8 right-8 text-gray-500 hover:text-white"><X/></button>
@@ -248,6 +248,7 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
+  const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
   const [libraryTab, setLibraryTab] = useState<'playlists' | 'artists' | 'albums'>('playlists');
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -363,6 +364,14 @@ export default function App() {
 
   const libraryArtists = useMemo(() => {
      return Array.from(new Set(MOCK_SONGS.map(s => s.artist))).slice(0, 20);
+  }, []);
+
+  const libraryAlbums = useMemo(() => {
+     const albums: Record<string, Song> = {};
+     MOCK_SONGS.forEach(s => {
+       if (s.movie && !albums[s.movie]) albums[s.movie] = s;
+     });
+     return Object.values(albums).slice(0, 20);
   }, []);
 
   if (!user) {
@@ -573,8 +582,107 @@ export default function App() {
             ))}
          </div>
        )}
+
+       {libraryTab === 'albums' && (
+         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-10 animate-in fade-in slide-in-from-top-8 duration-500">
+            {libraryAlbums.map((album, i) => (
+              <div 
+                key={i} 
+                onClick={() => { setSelectedAlbum(album.movie); navigateTo('album-detail'); }}
+                className="group flex flex-col gap-4 cursor-pointer hover:scale-105 transition-all p-4 glass rounded-3xl"
+              >
+                 <div className="relative w-full aspect-square rounded-2xl overflow-hidden shadow-xl">
+                    <img src={album.cover} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={album.movie} />
+                 </div>
+                 <div>
+                    <h3 className="text-sm font-black truncate group-hover:text-purple-400 transition-colors">{album.movie}</h3>
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">{album.language} • {album.artist}</p>
+                 </div>
+              </div>
+            ))}
+         </div>
+       )}
     </div>
   );
+
+  const renderAlbumDetail = () => {
+    if (!selectedAlbum) return null;
+    const albumTracks = MOCK_SONGS.filter(s => s.movie === selectedAlbum);
+    const firstSong = albumTracks[0];
+
+    return (
+      <div className="space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+        <div className="flex items-end gap-12 pt-10">
+           <div className="w-64 h-64 rounded-[2rem] shadow-2xl overflow-hidden border border-white/10 relative group">
+              <img src={firstSong.cover} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={selectedAlbum} />
+           </div>
+           <div className="flex flex-col gap-4 pb-4 flex-1">
+              <span className="text-xs font-black uppercase tracking-[0.5em] text-purple-400">Album Collection</span>
+              <h2 className="text-8xl font-black tracking-tighter leading-none mb-2 drop-shadow-2xl">{selectedAlbum}</h2>
+              <div className="flex items-center gap-6 font-bold text-sm text-gray-300">
+                 <div className="flex items-center gap-2">
+                    <img src={`https://picsum.photos/seed/${firstSong.artist}/50/50`} className="w-6 h-6 rounded-full" alt={firstSong.artist} />
+                    <span className="text-white hover:text-purple-400 cursor-pointer transition-colors">{firstSong.artist}</span>
+                 </div>
+                 <span>•</span>
+                 <span>{firstSong.language}</span>
+                 <span>•</span>
+                 <span>{albumTracks.length} tracks</span>
+              </div>
+              <div className="mt-4 flex items-center gap-4">
+                 <button onClick={() => handlePlaySong(firstSong)} className="px-10 py-3 bg-white text-black font-black rounded-full hover:scale-110 active:scale-95 transition-all shadow-2xl flex items-center gap-2">
+                    <Play size={18} fill="currentColor"/> PLAY ALL
+                 </button>
+                 <button className="p-3 glass rounded-full border border-white/10 hover:bg-white/10 transition-all">
+                    <Plus size={24}/>
+                 </button>
+                 <button className="p-3 glass rounded-full border border-white/10 hover:bg-white/10 transition-all">
+                    <MoreHorizontal size={24}/>
+                 </button>
+              </div>
+           </div>
+        </div>
+
+        <div className="glass rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl">
+           <table className="w-full text-left">
+              <thead className="border-b border-white/5 text-gray-500 text-[10px] uppercase tracking-[0.3em] font-black">
+                 <tr>
+                    <th className="px-10 py-4 w-16 text-center">#</th>
+                    <th className="px-10 py-4">Track Detail</th>
+                    <th className="px-10 py-4">Genre / Lang</th>
+                    <th className="px-10 py-4 text-right"><Clock size={18} className="inline-block" /></th>
+                 </tr>
+              </thead>
+              <tbody>
+                 {albumTracks.map((song, i) => (
+                   <tr key={song.id} onClick={() => handlePlaySong(song)} className="group hover:bg-white/5 transition-all cursor-pointer border-b border-white/5 last:border-0">
+                      <td className="px-10 py-3 text-center text-gray-500 font-bold group-hover:text-purple-400">{i + 1}</td>
+                      <td className="px-10 py-3">
+                         <div className="flex items-center gap-4">
+                            <div className="relative">
+                               <img src={song.cover} className="w-10 h-10 rounded shadow-md group-hover:opacity-50 transition-opacity" alt={song.title} />
+                               {currentSong?.id === song.id && isPlaying && (
+                                 <Pause size={16} className="absolute inset-0 m-auto text-white opacity-100" />
+                               )}
+                            </div>
+                            <div className="flex flex-col">
+                               <span className={`text-sm font-bold transition-colors ${currentSong?.id === song.id ? 'text-purple-400' : 'group-hover:text-purple-400'}`}>{song.title}</span>
+                               <span className="text-xs text-gray-400">{song.artist}</span>
+                            </div>
+                         </div>
+                      </td>
+                      <td className="px-10 py-3">
+                         <span className="text-[9px] text-purple-500 font-black uppercase tracking-widest">{song.language}</span>
+                      </td>
+                      <td className="px-10 py-3 text-xs text-gray-500 font-bold text-right tabular-nums group-hover:text-white transition-colors">{formatTime(song.duration)}</td>
+                   </tr>
+                 ))}
+              </tbody>
+           </table>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="flex h-screen text-white overflow-hidden transition-all duration-1000 select-none font-sans" style={backgroundStyle}>
@@ -717,6 +825,7 @@ export default function App() {
            {currentView === 'language-hub' && renderHub()}
            {currentView === 'liked' && renderLiked()}
            {currentView === 'library' && renderLibrary()}
+           {currentView === 'album-detail' && renderAlbumDetail()}
         </div>
       </main>
 
