@@ -180,7 +180,7 @@ const PaymentModal: React.FC<{ isOpen: boolean, onClose: () => void, onComplete:
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 backdrop-blur-xl p-6">
-      <div className="glass border border-white/10 w-full max-w-md p-10 rounded-[3rem] relative animate-in fade-in zoom-in duration-300">
+      <div className="glass border border-white/10 w-full max-md p-10 rounded-[3rem] relative animate-in fade-in zoom-in duration-300">
         {!isSuccess ? (
           <>
             <button onClick={onClose} className="absolute top-8 right-8 text-gray-500 hover:text-white"><X/></button>
@@ -607,19 +607,6 @@ export default function App() {
           <SidebarItem icon={Mic2} label="Tamil Hub" active={activeLangHub === Language.Tamil} onClick={() => navigateTo('language-hub', Language.Tamil)} />
           <SidebarItem icon={Music2} label="Telugu Hub" active={activeLangHub === Language.Telugu} onClick={() => navigateTo('language-hub', Language.Telugu)} />
         </nav>
-
-        {/* Sticky Upgrade to Pro Section - Always visible above the footer */}
-        <div className="absolute bottom-24 left-8 right-8 bg-transparent">
-           <div 
-            onClick={() => setIsPaymentModalOpen(true)} 
-            className="p-4 rounded-2xl glass border border-purple-500/30 bg-purple-600/10 hover:bg-purple-600/20 transition-all cursor-pointer text-center relative overflow-hidden group shadow-[0_10px_30px_rgba(0,0,0,0.3)]"
-           >
-              <div className="absolute inset-0 bg-gradient-to-tr from-purple-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <Zap className="mx-auto mb-1 text-purple-400 relative z-10" size={20}/>
-              <span className="text-xs font-black block relative z-10">UPGRADE TO PRO</span>
-              <p className="text-[8px] text-gray-400 font-bold tracking-widest relative z-10 mt-1 uppercase">Unlock Exclusive Tracks</p>
-           </div>
-        </div>
       </aside>
 
       {/* Main Content Area */}
